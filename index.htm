@@ -15,11 +15,18 @@
   <!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
   <script src="https://vjs.zencdn.net/ie8/ie8-version/videojs-ie8.min.js"></script>
   
+  <style>
+.video-js .vjs-control-bar {
+  display: flex;
+}
+  </style>
+  
+  
 </head>
 <body>
 
 
-	<video id="my-video" class="video-js" autoplay preload="auto" width="640" height="264" poster="DSC_9426.jpg" data-setup="{}">
+	<video id="my-video" class="video-js" autoplay controls preload="auto" width="640" height="264" poster="DSC_9426.jpg" data-setup="{}">
 		<source src="20180727_124027.mp4" type='video/mp4'>
 		<p class="vjs-no-js">
 			To view this video please enable JavaScript, and consider upgrading to a web browser that
@@ -29,7 +36,7 @@
 		</p>
 	</video>
 
-	<script src="https://vjs.zencdn.net/7.3.0/video.js"></script>
+	<!--<script src="https://vjs.zencdn.net/7.3.0/video.js"></script>-->
 
 
 
