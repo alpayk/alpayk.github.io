@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="paho-mqtt.js"></script>
+		<script>
+			var client = new Paho.MQTT.Client("broker.hivemq.com", Number(8000), "client_" + Math.random().toString(36).substr(2, 9));
+
+			client.onConnectionLost = onConnectionLost;
+			client.onMessageArrived = onMessageArrived;
+
+			client.connect({onSuccess:onConnect});
+
+			function onConnect() {
+			  console.log("onConnect");
+			  //message = new Paho.MQTT.Message("Hello");
+			  //message.destinationName = "World";
+			  //client.send(message);
+			}
+
+			// called when the client loses its connection
+			function onConnectionLost(responseObject) {
+			  if (responseObject.errorCode !== 0) {
+				console.log("onConnectionLost:"+responseObject.errorMessage);
+			  }
+			}
+
+			// called when a message arrives
+			function onMessageArrived(message) {
+			  console.log("onMessageArrived:"+message.payloadString);
+			  var table = document.getElementById("messages");
+  			  var row = table.insertRow();
+			  var cell1 = row.insertCell();
+			  cell1.innerHTML = message.payloadString;
+			}
+			
+			function send() {
+			  var _topic = document.getElementById("txtTopic").value;
+			  var _message = document.getElementById("txtMessage").value;
+			  message = new Paho.MQTT.Message(_message);
+			  message.destinationName = _topic;
+			  client.send(message);
+			}
+		</script>
+	</head>
+	<body>
+		<pre>topic:</pre><input id="txtTopic" value="alpayka123" /><br />
+		<pre>message:</pre><input id="txtMessage" value="test" /><br />
+		<a href="#" onclick="send(); return false;">click</a>
+	</body>
+</html>
