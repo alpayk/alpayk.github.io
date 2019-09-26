@@ -3,12 +3,12 @@
 	<head>
 		<script src="paho-mqtt.js"></script>
 		<script>
-			var client = new Paho.MQTT.Client("broker.hivemq.com", Number(8000), "client_" + Math.random().toString(36).substr(2, 9));
+			var client = new Paho.MQTT.Client("test.mosquitto.org", Number(8081), "client_" + Math.random().toString(36).substr(2, 9));
 
 			client.onConnectionLost = onConnectionLost;
 			client.onMessageArrived = onMessageArrived;
 
-			client.connect({onSuccess:onConnect});
+			client.connect({onSuccess:onConnect, useSSL:true});
 
 			function onConnect() {
 			  console.log("onConnect");
