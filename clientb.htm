@@ -39,6 +39,7 @@
 			  var _message = document.getElementById("txtMessage").value;
 			  message = new Paho.MQTT.Message(_message);
 			  message.destinationName = _topic;
+                          message.retained = true;
 			  client.send(message);
 			}
 			
