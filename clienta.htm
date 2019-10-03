@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<style>
+			.incoming {
+				text-align: left;
+			}
+			
+			.outgoing {
+				text-align: right;
+			}
+			.table {
+				width: 100%;
+				font-size: 24pt;
+			}
+		</style>
 		<script src="paho-mqtt.js"></script>
 		<script>
 			var client = new Paho.MQTT.Client("test.mosquitto.org", Number(8081), "client_" + Math.random().toString(36).substr(2, 9));
@@ -12,7 +25,7 @@
 
 			function onConnect() {
 			  console.log("onConnect");
-			  client.subscribe("alpayk_client_b");
+			  client.subscribe("alpayk_cl_b");
 			  //message = new Paho.MQTT.Message("Hello");
 			  //message.destinationName = "World";
 			  //client.send(message);
@@ -24,43 +37,64 @@
 				console.log("onConnectionLost:"+responseObject.errorMessage);
 			  }
 			}
-
-			// called when a message arrives
-			function onMessageArrived(message) {
-			  console.log("onMessageArrived:"+message.payloadString);
-			  var table = document.getElementById("messages");
-  			  var row = table.insertRow();
-			  var cell1 = row.insertCell();
-			  cell1.innerHTML = message.payloadString;
-			}
 			
 			function send() {
-			  var _topic = "alpayk_client_a";
+			  var _topic = "alpayk_cl_a";
 			  var _message = document.getElementById("txtMessage").value;
 			  message = new Paho.MQTT.Message(_message);
 			  message.destinationName = _topic;
-                          message.retained = true;
+			  //message.retained = true;
 			  client.send(message);
+			  
+			  messageHandler("outgoing", _message);
 			}
 			
 			function onMessageArrived(message) {
 			  console.log("onMessageArrived:"+message.payloadString);
+			  messageHandler("incoming", message.payloadString);
+			}
+			
+			function messageHandler(_class, _message) {
 			  var table = document.getElementById("messages");
   			  var row = table.insertRow();
 			  var cell1 = row.insertCell();
-			  cell1.innerHTML = message.payloadString;
+			  cell1.classList.add(_class);
+			  cell1.innerHTML = _message;
+			  
+			  var cnt = localStorage.getItem("counta");
+			  if(cnt != null) {
+				cnt = parseInt(cnt);
+			  }else{
+				cnt = 0;
+			  }
+			  
+			  localStorage.setItem(++cnt + "clienta", _class + ":" + _message);
+			  localStorage.setItem("counta", cnt + "");
+			  
+			}
+			
+			function init(){
+				var cnt = localStorage.getItem("counta");
+				if(cnt != null) {
+					cnt = parseInt(cnt);
+				}
+				
+				var i;
+				var table = document.getElementById("messages");
+				for (i = 1; i <= cnt; i++) {				
+					var tuple = localStorage.getItem(i + "clienta").split(":");
+					var row = table.insertRow();
+					  var cell1 = row.insertCell();
+					  cell1.classList.add(tuple[0]);
+					  cell1.innerHTML = tuple[1];
+				}
 			}
 		</script>
 	</head>
-	<body>
-		<pre>message:</pre><input id="txtMessage" value="test" /><br />
-		<a href="#" onclick="send(); return false;">click</a> <br />
-		<table id="messages">
-			<tr>
-				<th>
-					Messages
-				</th>
-			</tr>
+	<body onload="init()">
+		message: <input id="txtMessage" value="test" />
+		<a href="#" onclick="send(); return false;">Send</a> <br />
+		<table id="messages" class="table">
 		</table>
 	</body>
 </html>
