@@ -13,6 +13,10 @@
 				width: 100%;
 				font-size: 24pt;
 			}
+			.inputclass {
+				width: 100%;
+				font-size: 36pt;
+			}
 		</style>
 		<script src="paho-mqtt.js"></script>
 		<script>
@@ -92,7 +96,7 @@
 		</script>
 	</head>
 	<body onload="init()">
-		message: <input id="txtMessage" value="test" />
+		<div class="inputclass">message: <input id="txtMessage" value="test" style="font-size:32px; width: 75%;" /></div>
 		<a href="#" onclick="send(); return false;">Send</a> <br />
 		<table id="messages" class="table">
 		</table>
