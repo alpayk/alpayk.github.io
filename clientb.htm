@@ -4,10 +4,13 @@
 		<style>
 			.incoming {
 				text-align: left;
+				margin: 20px;
+				background-color: #ffeae4;
 			}
-			
 			.outgoing {
 				text-align: right;
+				margin: 20px;
+				background-color: #e4f2ff;
 			}
 			.table {
 				width: 100%;
@@ -96,8 +99,8 @@
 		</script>
 	</head>
 	<body onload="init()">
-		<div class="inputclass">message: <input id="txtMessage" value="test" style="font-size:32px; width: 75%;" /></div>
-		<a href="#" onclick="send(); return false;"><h1>Send</h1></a> <br />
+		<div class="inputclass">message: <input id="txtMessage" value="test" style="font-size:32px; width: 100%;" /></div>
+		<a href="#" onclick="send(); return false;" style="text-align: center;"><h1>Send</h1></a> <br />
 		<table id="messages" class="table">
 		</table>
 	</body>
