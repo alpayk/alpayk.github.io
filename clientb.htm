@@ -52,6 +52,8 @@
 			  message.destinationName = _topic;
 			  //message.retained = true;
 			  client.send(message);
+
+			  document.getElementById("txtMessage").value = "";
 			  
 			  messageHandler("outgoing", _message);
 			}
