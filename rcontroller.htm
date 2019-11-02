@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="paho-mqtt.js"></script>
+		<script>
+			var client = new Paho.MQTT.Client("test.mosquitto.org", Number(8081), "client_" + Math.random().toString(36).substr(2, 9));
+
+			client.onConnectionLost = onConnectionLost;
+			client.onMessageArrived = onMessageArrived;
+
+			client.connect({onSuccess:onConnect, useSSL:true});
+
+			function onConnect() {
+			  console.log("onConnect");
+			  client.subscribe("alpayk/esp/metrics");
+			}
+
+			// called when the client loses its connection
+			function onConnectionLost(responseObject) {
+			  if (responseObject.errorCode !== 0) {
+				console.log("onConnectionLost:"+responseObject.errorMessage);
+			  }
+			  client.connect({onSuccess:onConnect, useSSL:true});
+			}
+
+			// called when a message arrives
+			function onMessageArrived(message) {
+			  //console.log("onMessageArrived:"+message.payloadString);
+				try {
+					var table = document.getElementById("metrics");
+					table.innerHTML = message.payloadString;
+				}
+				catch(err) {
+					console.error("onMessageArrived:"+message.payloadString + " error: " + err);
+				}
+			}
+			
+			function send() {
+			  var _topic = document.getElementById("txtTopic").value;
+			  var _message = document.getElementById("txtMessage").value;
+			  message = new Paho.MQTT.Message(_message);
+			  message.destinationName = _topic;
+			  client.send(message);
+			}
+			
+			function sendCommand(cmd) {
+				message = new Paho.MQTT.Message(cmd);
+				message.destinationName = "alpayk/esp/commands";
+				client.send(message);
+			}
+			
+		</script>
+	</head>
+	<body>
+		<pre>topic:</pre><input id="txtTopic" value="alpayk/esp/commands" /><br />
+		<pre>message:</pre><input id="txtMessage" value="*0" /><br />
+		<a href="#" onclick="send(); return false;">click</a><br /><br />
+		<input type="submit" value="ScreenLight" onclick="sendCommand('*0'); return false;" />
+		<input type="submit" value="Frequency +" onclick="sendCommand('*+'); return false;" />
+		<input type="submit" value="Frequency -" onclick="sendCommand('*-'); return false;" /><br />
+		<input type="input" id="freq" placeholder="for 96.2 => 096200" />
+		<input type="submit" value="SetFrequency" onclick="sendCommand(document.getElementById('freq').value + '*F'); return false;" />
+		<br /><br />
+		<div id="metrics"></div>
+	</body>
+</html>
