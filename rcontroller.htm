@@ -50,7 +50,7 @@
 			  //console.log("onMessageArrived:"+message.payloadString);
 				try {
 					var table = document.getElementById("metrics");
-					table.innerHTML = JSON.stringify(message.payloadString, null, 2);
+					table.innerHTML = "<pre>" + JSON.stringify(message.payloadString, null, 2) + "</pre>";
 				}
 				catch(err) {
 					console.error("onMessageArrived:"+message.payloadString + " error: " + err);
