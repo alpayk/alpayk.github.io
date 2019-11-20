@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="paho-mqtt.js"></script>
+		<script src="plotly-latest.min.js"></script>
+		<script>
+			var client = new Paho.MQTT.Client("test.mosquitto.org", Number(8081), "client_" + Math.random().toString(36).substr(2, 9));
+
+			client.onConnectionLost = onConnectionLost;
+			client.onMessageArrived = onMessageArrived;
+
+			client.connect({onSuccess:onConnect, useSSL:true});
+
+			function drawHist(histogramData){
+				var xArr = [], yArr = [];
+				histogramData.forEach(function(item){
+					xArr.push(Object.keys(item)[0]);
+					yArr.push(item[Object.keys(item)[0]]);
+				});
+				var trace = {
+					x: xArr,
+					y: yArr,
+					type: 'bar',
+				  };
+				var data = [trace];
+				Plotly.newPlot('histogram', data, {bargap :0.5}, {showSendToCloud: true});
+			}
+			
+			function drawRds(rdsData){
+				var xArr = [], yArr = [];
+				rdsData.forEach(function(item){
+					xArr.push(Object.keys(item)[0]);
+					yArr.push(item[Object.keys(item)[0]]);
+				});
+				var trace = {
+					x: xArr,
+					y: yArr,
+					type: 'bar',
+				  };
+				var data = [trace];
+				Plotly.newPlot('rds', data, {bargap :0.5}, {showSendToCloud: true});
+			}
+			
+			function refreshTable(jsonObj){
+				var table = document.getElementById("metrics");
+				try {
+					table.deleteRow(1);
+				} catch(err) {}
+				
+				var row = table.insertRow(1);
+				row.insertCell(0).innerHTML = jsonObj["Frequency"];
+				row.insertCell(1).innerHTML = jsonObj["Signal Quality"];
+				row.insertCell(2).innerHTML = jsonObj["Pilot"];
+				row.insertCell(3).innerHTML = jsonObj["RDS"];
+				row.insertCell(4).innerHTML = jsonObj["RDS Phase Difference"];
+				row.insertCell(5).innerHTML = jsonObj["Modulation Power"];
+				row.insertCell(6).innerHTML = jsonObj["PS"];
+				row.insertCell(7).innerHTML = jsonObj["PI"];
+				row.insertCell(8).innerHTML = jsonObj["PTY"];
+				row.insertCell(9).innerHTML = jsonObj["TP"];
+				row.insertCell(10).innerHTML = jsonObj["TA"];
+				row.insertCell(11).innerHTML = jsonObj["MS"];
+				row.insertCell(12).innerHTML = jsonObj["DI"];
+				row.insertCell(13).innerHTML = jsonObj["RT"];
+				row.insertCell(14).innerHTML = jsonObj["CT"];
+				row.insertCell(15).innerHTML = jsonObj["LTO"];
+				row.insertCell(16).innerHTML = jsonObj["AF"];
+				row.insertCell(17).innerHTML = jsonObj["ECC"];
+				row.insertCell(18).innerHTML = jsonObj["LIC"];
+				row.insertCell(19).innerHTML = jsonObj["PIN"];
+				row.insertCell(20).innerHTML = jsonObj["PTYN"];
+				row.insertCell(21).innerHTML = jsonObj["EON"];
+				
+			}
+
+			function onConnect() {
+			  console.log("onConnect");
+			  client.subscribe("alpayk/esp/metrics");
+			}
+
+			// called when the client loses its connection
+			function onConnectionLost(responseObject) {
+			  if (responseObject.errorCode !== 0) {
+				console.log("onConnectionLost:"+responseObject.errorMessage);
+			  }
+			  client.connect({onSuccess:onConnect, useSSL:true});
+			}
+			
+			// called when a message arrives
+			function onMessageArrived(message) {
+			  //console.log("onMessageArrived:"+message.payloadString);
+				try {
+					var table = document.getElementById("metrics");
+					var jsonObj = JSON.parse(message.payloadString);
+					var histogramData = jsonObj["Histogram Data"];
+					drawHist(histogramData);
+					var rdsGroupStatistics = jsonObj["RDS Group Statistics"];
+					drawRds(rdsGroupStatistics);
+					delete jsonObj["Histogram Data"];
+					delete jsonObj["RDS Group Statistics"];
+					//table.innerHTML = "<pre>" + JSON.stringify(jsonObj, null, 2) + "</pre>";
+					refreshTable(jsonObj);
+				}
+				catch(err) {
+					console.error("onMessageArrived:"+message.payloadString + " error: " + err);
+				}
+			}
+			
+			function send() {
+			  var _topic = document.getElementById("txtTopic").value;
+			  var _message = document.getElementById("txtMessage").value;
+			  message = new Paho.MQTT.Message(_message);
+			  message.destinationName = _topic;
+			  client.send(message);
+			}
+			
+			function sendCommand(cmd) {
+				message = new Paho.MQTT.Message(cmd);
+				message.destinationName = "alpayk/esp/commands";
+				client.send(message);
+			}
+			
+		</script>
+	</head>
+	<body>
+		<pre>topic:</pre><input id="txtTopic" value="alpayk/esp/commands" /><br />
+		<pre>message:</pre><input id="txtMessage" value="*0" /><br />
+		<a href="#" onclick="send(); return false;">click</a><br /><br />
+		<input type="submit" value="ScreenLight" onclick="sendCommand('*0'); return false;" />
+		<input type="submit" value="Frequency +" onclick="sendCommand('*+'); return false;" />
+		<input type="submit" value="Frequency -" onclick="sendCommand('*-'); return false;" /><br />
+		<form>
+			<input type="input" id="freq" placeholder="for 96.2 => 096200" />
+			<input type="submit" value="SetFrequency" onclick="sendCommand(document.getElementById('freq').value + '*F'); return false;" />
+		</form>
+		<br /><br />
+		<!-- <div id="metrics" style="width: 50%; float: left;"></div> -->
+		<div style="width: 100%;">
+			<table id="metrics" cellpadding="10" border="1">
+				<tr>
+					<th>Frequency</th>
+					<th>Signal Quality</th>
+					<th>Pilot</th>
+					<th>RDS</th>
+					<th>RDS Phase Difference</th>
+					<th>Modulation Power</th>
+					<th>PS</th>
+					<th>PI</th>
+					<th>PTY</th>
+					<th>TP</th>
+					<th>TA</th>
+					<th>MS</th>
+					<th>DI</th>
+					<th>RT</th>
+					<th>CT</th>
+					<th>LTO</th>
+					<th>AF</th>
+					<th>ECC</th>
+					<th>LIC</th>
+					<th>PIN</th>
+					<th>PTYN</th>
+					<th>EON</th>
+				</tr>
+			</table>
+		</div>
+		<div id="histogram" style="width: 50%;float: right;"></div>
+		<div id="rds" style="width: 50%;float: left;"></div>
+	</body>
+</html>
