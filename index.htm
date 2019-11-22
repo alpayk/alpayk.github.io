@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<head>
 		<style>
+			.controls {
+				font-size: 20px;
+			}
+			
 			table { 
 			  width: 100%; 
 			  border-collapse: collapse; 
@@ -18,7 +23,6 @@
 			  padding: 6px; 
 			  border: 1px solid #ccc; 
 			  text-align: left; 
-			  margin-bottom: 15px;
 			}
 			@media 
 			only screen and (max-width: 1100px),
@@ -27,6 +31,7 @@
 				/* Force table to not be like tables anymore */
 				table, thead, tbody, th, td, tr { 
 					display: block; 
+					min-height: 20px;
 				}
 				
 				/* Hide table headers (but not display: none;, for accessibility) */
@@ -41,15 +46,14 @@
 				td { 
 					/* Behave  like a "row" */
 					border: none;
-					border-bottom: 1px solid #eee; 
+					border-bottom: 1px solid #666; 
 					position: relative;
 					padding-left: 50%; 
 				}
 				
 				td:before { 
-					/* Now like a table header */
+					font-weight: bold; 
 					position: absolute;
-					/* Top/left values mimic padding */
 					top: 6px;
 					left: 6px;
 					width: 45%; 
@@ -201,17 +205,18 @@
 		</script>
 	</head>
 	<body>
-		<pre>topic:</pre><input id="txtTopic" value="alpayk/esp/commands" /><br />
-		<pre>message:</pre><input id="txtMessage" value="*0" /><br />
-		<a href="#" onclick="send(); return false;">click</a><br /><br />
-		<input type="submit" value="ScreenLight" onclick="sendCommand('*0'); return false;" />
-		<input type="submit" value="Frequency +" onclick="sendCommand('*+'); return false;" />
-		<input type="submit" value="Frequency -" onclick="sendCommand('*-'); return false;" /><br />
-		<form>
-			<input type="input" id="freq" placeholder="for 96.2 => 096200" />
-			<input type="submit" value="SetFrequency" onclick="sendCommand(document.getElementById('freq').value + '*F'); return false;" />
-		</form>
-		<br /><br />
+		<div class="controls">
+			<pre>topic:</pre><input id="txtTopic" style = "font-size:20px" value="alpayk/esp/commands" /><br />
+			<pre>message:</pre><input id="txtMessage" style = "font-size:20px" value="*0" /><br />
+			<a href="#" style = "font-size:20px" onclick="send(); return false;">SEND</a><br /><br />
+			<input type="submit" value="ScreenLight" style = "font-size:20px" onclick="sendCommand('*0'); return false;" />
+			<input type="submit" value="Frequency +" style = "font-size:20px" onclick="sendCommand('*+'); return false;" />
+			<input type="submit" value="Frequency -" style = "font-size:20px" onclick="sendCommand('*-'); return false;" /><br />
+			<form>
+				<input type="input" style = "font-size:20px" id="freq" placeholder="for 96.2 => 096200" />
+				<input type="submit" style = "font-size:20px" value="SetFrequency" onclick="sendCommand(document.getElementById('freq').value + '*F'); return false;" />
+			</form>
+		</div>
 		<!-- <div id="metrics" style="width: 50%; float: left;"></div> -->
 		<div style="width: 100%;">
 			<table id="metrics">
