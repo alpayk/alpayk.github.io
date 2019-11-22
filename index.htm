@@ -1,6 +1,85 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<style>
+			table { 
+			  width: 100%; 
+			  border-collapse: collapse; 
+			}
+			tr:nth-of-type(odd) { 
+			  background: #eee; 
+			}
+			th { 
+			  background: #333; 
+			  color: white; 
+			  font-weight: bold; 
+			}
+			td, th { 
+			  padding: 6px; 
+			  border: 1px solid #ccc; 
+			  text-align: left; 
+			  margin-bottom: 15px;
+			}
+			@media 
+			only screen and (max-width: 1100px),
+			(min-device-width: 768px) and (max-device-width: 1024px)  {
+
+				/* Force table to not be like tables anymore */
+				table, thead, tbody, th, td, tr { 
+					display: block; 
+				}
+				
+				/* Hide table headers (but not display: none;, for accessibility) */
+				thead tr { 
+					position: absolute;
+					top: -9999px;
+					left: -9999px;
+				}
+				
+				tr { border: 1px solid #ccc; }
+				
+				td { 
+					/* Behave  like a "row" */
+					border: none;
+					border-bottom: 1px solid #eee; 
+					position: relative;
+					padding-left: 50%; 
+				}
+				
+				td:before { 
+					/* Now like a table header */
+					position: absolute;
+					/* Top/left values mimic padding */
+					top: 6px;
+					left: 6px;
+					width: 45%; 
+					padding-right: 10px; 
+					white-space: nowrap;
+				}
+				
+				td:nth-of-type(1):before { content: "Frequency"; }
+				td:nth-of-type(2):before { content: "Signal Quality"; }
+				td:nth-of-type(3):before { content: "Pilot"; }
+				td:nth-of-type(4):before { content: "RDS"; }
+				td:nth-of-type(5):before { content: "RDS Phase Difference"; }
+				td:nth-of-type(6):before { content: "Modulation Power"; }
+				td:nth-of-type(7):before { content: "PS"; }
+				td:nth-of-type(8):before { content: "PI"; }
+				td:nth-of-type(9):before { content: "PTY"; }
+				td:nth-of-type(10):before { content: "TP"; }
+				td:nth-of-type(11):before { content: "TA"; }
+				td:nth-of-type(12):before { content: "MS"; }
+				td:nth-of-type(13):before { content: "DI"; }
+				td:nth-of-type(14):before { content: "RT"; }
+				td:nth-of-type(15):before { content: "CT"; }
+				td:nth-of-type(16):before { content: "LTO"; }
+				td:nth-of-type(17):before { content: "AF"; }
+				td:nth-of-type(18):before { content: "ECC"; }
+				td:nth-of-type(19):before { content: "LIC"; }
+				td:nth-of-type(20):before { content: "PIN"; }
+				td:nth-of-type(21):before { content: "PTYN"; }
+				td:nth-of-type(22):before { content: "EON"; }
+		</style>
 		<script src="paho-mqtt.js"></script>
 		<script src="plotly-latest.min.js"></script>
 		<script>
@@ -14,7 +93,7 @@
 			function drawHist(histogramData){
 				var xArr = [], yArr = [];
 				histogramData.forEach(function(item){
-					xArr.push(Object.keys(item)[0]);
+					xArr.push(Object.keys(item)[0].slice(1));
 					yArr.push(item[Object.keys(item)[0]]);
 				});
 				var trace = {
@@ -42,12 +121,12 @@
 			}
 			
 			function refreshTable(jsonObj){
-				var table = document.getElementById("metrics");
+				var table = document.getElementById('metrics').getElementsByTagName('tbody')[0];
 				try {
-					table.deleteRow(1);
+					table.deleteRow(0);
 				} catch(err) {}
 				
-				var row = table.insertRow(1);
+				var row = table.insertRow(0);
 				row.insertCell(0).innerHTML = jsonObj["Frequency"];
 				row.insertCell(1).innerHTML = jsonObj["Signal Quality"];
 				row.insertCell(2).innerHTML = jsonObj["Pilot"];
@@ -69,10 +148,9 @@
 				row.insertCell(18).innerHTML = jsonObj["LIC"];
 				row.insertCell(19).innerHTML = jsonObj["PIN"];
 				row.insertCell(20).innerHTML = jsonObj["PTYN"];
-				row.insertCell(21).innerHTML = jsonObj["EON"];
-				
+				row.insertCell(21).innerHTML = jsonObj["EON"];			
 			}
-
+	
 			function onConnect() {
 			  console.log("onConnect");
 			  client.subscribe("alpayk/esp/metrics");
@@ -136,34 +214,38 @@
 		<br /><br />
 		<!-- <div id="metrics" style="width: 50%; float: left;"></div> -->
 		<div style="width: 100%;">
-			<table id="metrics" cellpadding="10" border="1">
-				<tr>
-					<th>Frequency</th>
-					<th>Signal Quality</th>
-					<th>Pilot</th>
-					<th>RDS</th>
-					<th>RDS Phase Difference</th>
-					<th>Modulation Power</th>
-					<th>PS</th>
-					<th>PI</th>
-					<th>PTY</th>
-					<th>TP</th>
-					<th>TA</th>
-					<th>MS</th>
-					<th>DI</th>
-					<th>RT</th>
-					<th>CT</th>
-					<th>LTO</th>
-					<th>AF</th>
-					<th>ECC</th>
-					<th>LIC</th>
-					<th>PIN</th>
-					<th>PTYN</th>
-					<th>EON</th>
-				</tr>
+			<table id="metrics">
+				<thead>
+					<tr>
+						<th>Frequency</th>
+						<th>Signal Quality</th>
+						<th>Pilot</th>
+						<th>RDS</th>
+						<th>RDS Phase Difference</th>
+						<th>Modulation Power</th>
+						<th>PS</th>
+						<th>PI</th>
+						<th>PTY</th>
+						<th>TP</th>
+						<th>TA</th>
+						<th>MS</th>
+						<th>DI</th>
+						<th>RT</th>
+						<th>CT</th>
+						<th>LTO</th>
+						<th>AF</th>
+						<th>ECC</th>
+						<th>LIC</th>
+						<th>PIN</th>
+						<th>PTYN</th>
+						<th>EON</th>
+					</tr>
+				<thead>
+				<tbody>
+				</tbody>
 			</table>
 		</div>
-		<div id="histogram" style="width: 50%;float: right;"></div>
-		<div id="rds" style="width: 50%;float: left;"></div>
+		<div id="histogram"></div>
+		<div id="rds"></div>
 	</body>
 </html>
