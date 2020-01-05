@@ -201,10 +201,22 @@
 				message.destinationName = "alpayk/esp/commands";
 				client.send(message);
 			}
-			
+			function play() {
+				document.getElementById("welcome").play();
+			  }
+			  
+			  function stop() {
+				document.getElementById("welcome").pause();
+			  }
 		</script>
 	</head>
 	<body>
+		<input type="submit" onclick="play();return false;" value="play" />
+		<input type="submit" onclick="stop();return false;" value="stop" />
+		<audio id="welcome">
+			<source src="http://shaincast.caster.fm:36678/listen.mp3?authnfcc9ecefbb229da0bdf0b6949785a2cb" type="audio/mp3">
+			Your browser does not support the audio element.
+		</audio>
 		<div class="controls">
 			<pre>topic:</pre><input id="txtTopic" style = "font-size:20px" value="alpayk/esp/commands" /><br />
 			<pre>message:</pre><input id="txtMessage" style = "font-size:20px" value="*0" /><br />
