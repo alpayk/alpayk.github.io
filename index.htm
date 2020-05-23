@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-		<meta name="viewport" content="width=device-width">
+	<meta name="viewport" content="width=device-width">
         <style>
             body, html {
             height: 100%;
@@ -43,11 +43,11 @@
             client.connect({onSuccess:onConnect, useSSL:true});
             
             function onConnect() {
-				 console.log("onConnect");
-				 client.subscribe("alpayk_esp_to_github");
+		console.log("onConnect");
+		client.subscribe("alpayk_esp_to_github");
 			  
-				var image = document.getElementById("image");
-				image.classList.remove("wait");
+		var image = document.getElementById("image");
+		image.classList.remove("wait");
             }
             
             function onConnectionLost(responseObject) {
@@ -69,7 +69,7 @@
               
               message = new Paho.MQTT.Message(_message);
               message.destinationName = _topic;
-              message.retained = true;
+              //message.retained = true;
               
               client.send(message);
             }
