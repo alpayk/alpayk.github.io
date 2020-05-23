@@ -1,270 +1,98 @@
 <!DOCTYPE html>
 <html>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<head>
-		<style>
-			.controls {
-				font-size: 20px;
-			}
-			
-			table { 
-			  width: 100%; 
-			  border-collapse: collapse; 
-			}
-			tr:nth-of-type(odd) { 
-			  background: #eee; 
-			}
-			th { 
-			  background: #333; 
-			  color: white; 
-			  font-weight: bold; 
-			}
-			td, th { 
-			  padding: 6px; 
-			  border: 1px solid #ccc; 
-			  text-align: left; 
-			}
-			@media 
-			only screen and (max-width: 1100px),
-			(min-device-width: 768px) and (max-device-width: 1024px)  {
-
-				/* Force table to not be like tables anymore */
-				table, thead, tbody, th, td, tr { 
-					display: block; 
-					min-height: 20px;
-				}
+    <head>
+        <style>
+            body, html {
+            height: 100%;
+            margin: 0;
+            }
+            .bg{
+            height: 100%; 
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            }
+            .off {
+            background-image: url("off.svg");
+            }
+            .on {
+            background-image: url("on.svg");
+            }
+			.wait {
+				background-image: url("wait.gif");
+				height: 64px; 
+				width: 64px;
+				position: absolute;
+				top:0;
+				bottom: 0;
+				left: 0;
+				right: 0;
 				
-				/* Hide table headers (but not display: none;, for accessibility) */
-				thead tr { 
-					position: absolute;
-					top: -9999px;
-					left: -9999px;
-				}
-				
-				tr { border: 1px solid #ccc; }
-				
-				td { 
-					/* Behave  like a "row" */
-					border: none;
-					border-bottom: 1px solid #666; 
-					position: relative;
-					padding-left: 50%; 
-				}
-				
-				td:before { 
-					font-weight: bold; 
-					position: absolute;
-					top: 6px;
-					left: 6px;
-					width: 45%; 
-					padding-right: 10px; 
-					white-space: nowrap;
-				}
-				
-				td:nth-of-type(1):before { content: "Frequency"; }
-				td:nth-of-type(2):before { content: "Signal Quality"; }
-				td:nth-of-type(3):before { content: "Pilot"; }
-				td:nth-of-type(4):before { content: "RDS"; }
-				td:nth-of-type(5):before { content: "RDS Phase Difference"; }
-				td:nth-of-type(6):before { content: "Modulation Power"; }
-				td:nth-of-type(7):before { content: "PS"; }
-				td:nth-of-type(8):before { content: "PI"; }
-				td:nth-of-type(9):before { content: "PTY"; }
-				td:nth-of-type(10):before { content: "TP"; }
-				td:nth-of-type(11):before { content: "TA"; }
-				td:nth-of-type(12):before { content: "MS"; }
-				td:nth-of-type(13):before { content: "DI"; }
-				td:nth-of-type(14):before { content: "RT"; }
-				td:nth-of-type(15):before { content: "CT"; }
-				td:nth-of-type(16):before { content: "LTO"; }
-				td:nth-of-type(17):before { content: "AF"; }
-				td:nth-of-type(18):before { content: "ECC"; }
-				td:nth-of-type(19):before { content: "LIC"; }
-				td:nth-of-type(20):before { content: "PIN"; }
-				td:nth-of-type(21):before { content: "PTYN"; }
-				td:nth-of-type(22):before { content: "EON"; }
-		</style>
-		<script src="paho-mqtt.js"></script>
-		<script src="plotly-latest.min.js"></script>
-		<script>
-			var client = new Paho.MQTT.Client("test.mosquitto.org", Number(8081), "client_" + Math.random().toString(36).substr(2, 9));
-
-			client.onConnectionLost = onConnectionLost;
-			client.onMessageArrived = onMessageArrived;
-
-			client.connect({onSuccess:onConnect, useSSL:true});
-
-			function drawHist(histogramData){
-				var xArr = [], yArr = [];
-				histogramData.forEach(function(item){
-					xArr.push(Object.keys(item)[0].slice(1));
-					yArr.push(item[Object.keys(item)[0]]);
-				});
-				var trace = {
-					x: xArr,
-					y: yArr,
-					type: 'bar',
-				  };
-				var data = [trace];
-				Plotly.newPlot('histogram', data, {bargap :0.5}, {showSendToCloud: true});
-			}
+				margin: auto;
+            }
 			
-			function drawRds(rdsData){
-				var xArr = [], yArr = [];
-				rdsData.forEach(function(item){
-					xArr.push(Object.keys(item)[0]);
-					yArr.push(item[Object.keys(item)[0]]);
-				});
-				var trace = {
-					x: xArr,
-					y: yArr,
-					type: 'bar',
-				  };
-				var data = [trace];
-				Plotly.newPlot('rds', data, {bargap :0.5}, {showSendToCloud: true});
-			}
-			
-			function refreshTable(jsonObj){
-				var table = document.getElementById('metrics').getElementsByTagName('tbody')[0];
-				try {
-					table.deleteRow(0);
-				} catch(err) {}
-				
-				var row = table.insertRow(0);
-				row.insertCell(0).innerHTML = jsonObj["Frequency"];
-				row.insertCell(1).innerHTML = jsonObj["Signal Quality"];
-				row.insertCell(2).innerHTML = jsonObj["Pilot"];
-				row.insertCell(3).innerHTML = jsonObj["RDS"];
-				row.insertCell(4).innerHTML = jsonObj["RDS Phase Difference"];
-				row.insertCell(5).innerHTML = jsonObj["Modulation Power"];
-				row.insertCell(6).innerHTML = jsonObj["PS"];
-				row.insertCell(7).innerHTML = jsonObj["PI"];
-				row.insertCell(8).innerHTML = jsonObj["PTY"];
-				row.insertCell(9).innerHTML = jsonObj["TP"];
-				row.insertCell(10).innerHTML = jsonObj["TA"];
-				row.insertCell(11).innerHTML = jsonObj["MS"];
-				row.insertCell(12).innerHTML = jsonObj["DI"];
-				row.insertCell(13).innerHTML = jsonObj["RT"];
-				row.insertCell(14).innerHTML = jsonObj["CT"];
-				row.insertCell(15).innerHTML = jsonObj["LTO"];
-				row.insertCell(16).innerHTML = jsonObj["AF"];
-				row.insertCell(17).innerHTML = jsonObj["ECC"];
-				row.insertCell(18).innerHTML = jsonObj["LIC"];
-				row.insertCell(19).innerHTML = jsonObj["PIN"];
-				row.insertCell(20).innerHTML = jsonObj["PTYN"];
-				row.insertCell(21).innerHTML = jsonObj["EON"];			
-			}
-	
-			function onConnect() {
-			  console.log("onConnect");
-			  client.subscribe("alpayk/esp/metrics");
-			}
-
-			// called when the client loses its connection
-			function onConnectionLost(responseObject) {
-			  if (responseObject.errorCode !== 0) {
-				console.log("onConnectionLost:"+responseObject.errorMessage);
-			  }
-			  client.connect({onSuccess:onConnect, useSSL:true});
-			}
-			
-			// called when a message arrives
-			function onMessageArrived(message) {
-			  //console.log("onMessageArrived:"+message.payloadString);
-				try {
-					var table = document.getElementById("metrics");
-					var jsonObj = JSON.parse(message.payloadString);
-					var histogramData = jsonObj["Histogram Data"];
-					drawHist(histogramData);
-					var rdsGroupStatistics = jsonObj["RDS Group Statistics"];
-					drawRds(rdsGroupStatistics);
-					delete jsonObj["Histogram Data"];
-					delete jsonObj["RDS Group Statistics"];
-					//table.innerHTML = "<pre>" + JSON.stringify(jsonObj, null, 2) + "</pre>";
-					refreshTable(jsonObj);
-				}
-				catch(err) {
-					console.error("onMessageArrived:"+message.payloadString + " error: " + err);
-				}
-			}
-			
-			function send() {
-			  var _topic = document.getElementById("txtTopic").value;
-			  var _message = document.getElementById("txtMessage").value;
-			  message = new Paho.MQTT.Message(_message);
-			  message.destinationName = _topic;
-			  client.send(message);
-			}
-			
-			function sendCommand(cmd) {
-				message = new Paho.MQTT.Message(cmd);
-				message.destinationName = "alpayk/esp/commands";
-				client.send(message);
-			}
-			function play() {
-				document.getElementById("welcome").play();
-			  }
+        </style>
+        <script src="paho-mqtt.js"></script>
+        <script>
+            var client = new Paho.MQTT.Client("test.mosquitto.org", Number(8081), "client_" + Math.random().toString(36).substr(2, 9));
+            
+            client.onConnectionLost = onConnectionLost;
+            client.onMessageArrived = onMessageArrived;
+            
+            client.connect({onSuccess:onConnect, useSSL:true});
+            
+            function onConnect() {
+				 console.log("onConnect");
+				 client.subscribe("alpayk_esp_to_github");
 			  
-			  function stop() {
-				document.getElementById("welcome").pause();
-			  }
-		</script>
-	</head>
-	<body>
-		<!--
-		<input type="submit" onclick="play();return false;" value="play" />
-		<input type="submit" onclick="stop();return false;" value="stop" />
-		<audio id="welcome">
-			<source src="http://shaincast.caster.fm:36678/listen.mp3?authnfcc9ecefbb229da0bdf0b6949785a2cb" type="audio/mp3">
-			Your browser does not support the audio element.
-		</audio>
-		-->
-		<div class="controls">
-			<pre>topic:</pre><input id="txtTopic" style = "font-size:20px" value="alpayk/esp/commands" /><br />
-			<pre>message:</pre><input id="txtMessage" style = "font-size:20px" value="*0" /><br />
-			<a href="#" style = "font-size:20px" onclick="send(); return false;">SEND</a><br /><br />
-			<input type="submit" value="ScreenLight" style = "font-size:20px" onclick="sendCommand('*0'); return false;" />
-			<input type="submit" value="Frequency +" style = "font-size:20px" onclick="sendCommand('*+'); return false;" />
-			<input type="submit" value="Frequency -" style = "font-size:20px" onclick="sendCommand('*-'); return false;" /><br />
-			<form>
-				<input type="input" style = "font-size:20px" id="freq" placeholder="for 96.2 => 096200" />
-				<input type="submit" style = "font-size:20px" value="SetFrequency" onclick="sendCommand(document.getElementById('freq').value + '*F'); return false;" />
-			</form>
-		</div>
-		<!-- <div id="metrics" style="width: 50%; float: left;"></div> -->
-		<div style="width: 100%;">
-			<table id="metrics">
-				<thead>
-					<tr>
-						<th>Frequency</th>
-						<th>Signal Quality</th>
-						<th>Pilot</th>
-						<th>RDS</th>
-						<th>RDS Phase Difference</th>
-						<th>Modulation Power</th>
-						<th>PS</th>
-						<th>PI</th>
-						<th>PTY</th>
-						<th>TP</th>
-						<th>TA</th>
-						<th>MS</th>
-						<th>DI</th>
-						<th>RT</th>
-						<th>CT</th>
-						<th>LTO</th>
-						<th>AF</th>
-						<th>ECC</th>
-						<th>LIC</th>
-						<th>PIN</th>
-						<th>PTYN</th>
-						<th>EON</th>
-					</tr>
-				<thead>
-				<tbody>
-				</tbody>
-			</table>
-		</div>
-		<div id="histogram"></div>
-		<div id="rds"></div>
-	</body>
+				var image = document.getElementById("image");
+				image.classList.remove("wait");
+            }
+            
+            function onConnectionLost(responseObject) {
+              if (responseObject.errorCode !== 0) {
+            	console.log("onConnectionLost:"+responseObject.errorMessage);
+              }
+            }
+            
+            function send() {
+              var _topic = "alpayk_github_to_esp";
+              var _message = null
+              var image = document.getElementById("image");
+              if(image.classList.contains("on")) {
+            	_message = "off";
+              }
+              else if(image.classList.contains("off")) {
+            	_message = "on";
+              }
+              
+              message = new Paho.MQTT.Message(_message);
+              message.destinationName = _topic;
+              message.retained = true;
+              
+              client.send(message);
+            }
+            
+            function onMessageArrived(message) {
+              console.log("onMessageArrived:"+message.payloadString);
+              var image = document.getElementById("image");
+              //if(message.payloadString == "on" && image.classList.contains("off")) {
+			  if(message.payloadString == "on") {
+            	image.classList.remove("off");
+            	image.classList.add("on");
+              }
+              //else if (message.payloadString == "off" && image.classList.contains("on")){
+			  else if (message.payloadString == "off"){
+            	image.classList.remove("on");
+            	image.classList.add("off");
+              }
+            }
+            
+        </script>
+    </head>
+    <body>
+        <a href="#" onclick="send()">
+            <div id="image" class="bg wait"></div>
+        </a>
+    </body>
 </html>
