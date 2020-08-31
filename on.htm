@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+	<meta name="viewport" content="width=device-width">
+        <script src="paho-mqtt.js"></script>
+        <script>
+            var client = new Paho.MQTT.Client("test.mosquitto.org", Number(8081), "client_" + Math.random().toString(36).substr(2, 9));
+            
+            client.onConnectionLost = onConnectionLost;
+            
+            client.connect({onSuccess:onConnect, useSSL:true});
+            
+            function onConnect() {
+				 console.log("onConnect");
+            }
+            
+            function onConnectionLost(responseObject) {
+              if (responseObject.errorCode !== 0) {
+            	console.log("onConnectionLost:"+responseObject.errorMessage);
+              }
+            }
+            
+            function send(msg) {
+              var _topic = "alpayk_github_to_esp";
+              message = new Paho.MQTT.Message(msg);
+              message.destinationName = _topic;
+              message.retained = true;
+              
+              client.send(message);
+            }     
+        </script>
+    </head>
+    <body>
+        <a href="#" onclick="send('on')">
+            <h1>SEND ON</h1>
+        </a>
+        <br>
+        <br>
+        <a href="#" onclick="send('off')">
+            <h1>SEND OFF</h1>
+        </a>
+    </body>
+</html>
