@@ -36,12 +36,12 @@
         <script src="paho-mqtt.js"></script>
         <script>
 		    const TXT_PASS = "1881";
-            var client = new Paho.MQTT.Client("test.mosquitto.org", Number(8081), "client_" + Math.random().toString(36).substr(2, 9));
+            var client = new Paho.MQTT.Client("mqtt.flespi.io", Number(443), "alpayk_browser_" + Math.random().toString(36).substr(2, 9));
             
             client.onConnectionLost = onConnectionLost;
             client.onMessageArrived = onMessageArrived;
             
-            client.connect({onSuccess:onConnect, useSSL:true});
+            client.connect({onSuccess:onConnect, useSSL:true, userName:"FlespiToken dNAx37nHwIWGU209M4YyrY1a3Ug83yS59gs2dDzzbj4TbUSNME94sY4lG9hyxZtv", password:""});
             
             function onConnect() {
 				 console.log("onConnect");
