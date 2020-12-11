@@ -1,23 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-    <script src="libs/jquery-2.1.1.min.js"></script>
-    <script src="libs/strophe/strophe.js"></script>
-    <script src="libs/strophe/strophe.disco.min.js?v=1"></script>
-    <!--<script src="../../lib-jitsi-meet.min.js"></script>-->
-    <script src="https://meet.jit.si/libs/lib-jitsi-meet.min.js"></script>
-    <script src="example.js" ></script>
-</head>
-<body>
-    <a href="#" onclick="unload()">Unload</a>
-    <a href="#" onclick="switchVideo()">switchVideo</a>
-    <div id="audioOutputSelectWrapper" style="display: none;">
-        Change audio output device
-        <select id="audioOutputSelect" onchange="changeAudioOutput(this)"></select>
-    </div>
-    <!-- <video id="localVideo" autoplay="true"></video> -->
-    <!--<audio id="localAudio" autoplay="true" muted="true"></audio>-->
-</body>
+<html itemscope itemtype="http://schema.org/Product" prefix="og: http://ogp.me/ns#" xmlns="http://www.w3.org/1999/html">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    </head>
+    <body>
+        <script src="https://meet.jit.si/external_api.js"></script>
+        <script>
+            var domain = "meet.jit.si";
+            var options = {
+                roomName: "alpayk_jitsi",
+                width: 700,
+                height: 700,
+                parentNode: undefined,
+                configOverwrite: {},
+                interfaceConfigOverwrite: {}
+            }
+            var api = new JitsiMeetExternalAPI(domain, options);
+        </script>
+    </body>
 </html>
