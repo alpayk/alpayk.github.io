@@ -1,7 +1,10 @@
 import hazelcast
 import time
 import json
-import pyodbc
+#import pyodbc
+import jaydebeapi
+import jpype
+import jpype.imports
 from datetime import datetime
 from hazelcast.config import NearCacheConfig, IN_MEMORY_FORMAT, EVICTION_POLICY
 
@@ -21,7 +24,7 @@ client = hazelcast.HazelcastClient(config)
 structure_map = client.get_map(STRUCTURE_MAP_NAME).blocking()
 attribute_map = client.get_map(ATTRIBUTE_MAP_NAME).blocking()
 
-#item = structure_map.get('AC1Q551I:IAC1Q551:GAR:PROD')
+#item = attribute_map.get('ZJP5:JP1FP51I')
 #print(item)
 #exit(1)
 
@@ -29,10 +32,8 @@ attribute_map = client.get_map(ATTRIBUTE_MAP_NAME).blocking()
 #attribute_map.destroy()
 #exit()
 
-cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=RHYSALS,1663;DATABASE=SURECWEBDB;UID=SurecWebUser;PWD=Ko4g}Hj+')
-
-cursor = cnxn.cursor()
-
+conn = jaydebeapi.connect('com.microsoft.sqlserver.jdbc.SQLServerDriver', 'jdbc:sqlserver://RHYSALS:1663;user=SurecWebUser;password=Ko4g}Hj+', [], 'C:\\Users\\AlpayKa\\Desktop\\sqljdbc_9.2\\enu\\mssql-jdbc-9.2.1.jre8.jar')
+cursor = conn.cursor()
 cursor.execute('''
 SELECT load_module_name_text, procedure_step_name_text, entity_text, variable_text, variable_type, sequence_num, firm_code
 FROM [SURECWEBDB].[dbo].[T_source_structure_info] WITH(NOLOCK)
@@ -48,7 +49,8 @@ items = {}
 
 start_time = time.time()
 
-for row in cursor:
+row = cursor.fetchone()
+while row is not None:
     temp_key = f'{row[0]}:{row[1]}:{row[6]}'
 
     if key != temp_key:
@@ -63,6 +65,7 @@ for row in cursor:
         key = temp_key
     else:
         value[f'_p{row[5]}'] = row[3]
+    row = cursor.fetchone()
 
 items[key] = json.dumps(value)
 structure_map.put_all(items)
@@ -83,7 +86,8 @@ p_count = 1
 
 start_time = time.time()
 
-for row in cursor:
+row = cursor.fetchone()
+while row is not None:
     temp_key = f'{row[0]}:{row[1]}'
 
     if key != temp_key:
@@ -100,6 +104,7 @@ for row in cursor:
     else:
         value[f'_p{p_count}'] = {'attribute_text': row[2], 'domain_text': row[3]}
     p_count = p_count + 1
+    row = cursor.fetchone()
 
 items[key] = json.dumps(value)
 attribute_map.put_all(items)
