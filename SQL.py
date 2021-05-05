@@ -32,7 +32,7 @@ attribute_map = client.get_map(ATTRIBUTE_MAP_NAME).blocking()
 #attribute_map.destroy()
 #exit()
 
-conn = jaydebeapi.connect('com.microsoft.sqlserver.jdbc.SQLServerDriver', 'jdbc:sqlserver://RHYSALS:1663;user=SurecWebUser;password=Ko4g}Hj+', [], 'C:\\Users\\AlpayKa\\Desktop\\sqljdbc_9.2\\enu\\mssql-jdbc-9.2.1.jre8.jar')
+conn = jaydebeapi.connect('com.microsoft.sqlserver.jdbc.SQLServerDriver', 'jdbc:sqlserver://RHYSALS:1663;user=SurecWebUser;password=Ko4g}Hj+', [], 'mssql-jdbc-9.2.1.jre8.jar')
 cursor = conn.cursor()
 cursor.execute('''
 SELECT load_module_name_text, procedure_step_name_text, entity_text, variable_text, variable_type, sequence_num, firm_code
