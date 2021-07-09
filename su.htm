@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<meta name="viewport" content="width=device-width">
+        <style>
+            body, html {
+            height: 100%;
+            margin: 0;
+            }
+            .bg{
+            height: 100%; 
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            }
+            .off {
+            background-image: url("off.svg");
+            }
+            .on {
+            background-image: url("on.svg");
+            }
+			.wait {
+				background-image: url("wait.gif");
+				height: 64px; 
+				width: 64px;
+				position: absolute;
+				top:0;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				
+				margin: auto;
+            }
+			
+        </style>
+        <script src="paho-mqtt.js"></script>
+        <script>
+		    const TXT_PASS = "1881";
+            var client = new Paho.MQTT.Client("mqtt.flespi.io", Number(443), "alpayk_browser_" + Math.random().toString(36).substr(2, 9));
+            
+            client.onConnectionLost = onConnectionLost;
+            client.onMessageArrived = onMessageArrived;
+            
+            client.connect({onSuccess:onConnect, useSSL:true, userName:"FlespiToken dNAx37nHwIWGU209M4YyrY1a3Ug83yS59gs2dDzzbj4TbUSNME94sY4lG9hyxZtv", password:""});
+            
+            function onConnect() {
+				 console.log("onConnect");
+				 client.subscribe("su_alpayk_esp_to_github");
+			  
+				var image = document.getElementById("image");
+				image.classList.remove("wait");
+            }
+            
+            function onConnectionLost(responseObject) {
+              if (responseObject.errorCode !== 0) {
+            	console.log("onConnectionLost:"+responseObject.errorMessage);
+              }
+            }
+            
+            function send() {
+			  var pass = document.getElementById("txtPass").value;
+			  
+			  if(pass !== TXT_PASS) return;
+			  
+              var _topic = "su_alpayk_github_to_esp";
+              var _message = null
+              var image = document.getElementById("image");
+              if(image.classList.contains("on")) {
+            	_message = "off";
+              }
+              else if(image.classList.contains("off")) {
+            	_message = "on";
+              }
+              
+              message = new Paho.MQTT.Message(_message);
+              message.destinationName = _topic;
+              message.retained = true;
+              
+              client.send(message);
+            }
+            
+            function onMessageArrived(message) {
+              console.log("onMessageArrived:"+message.payloadString);
+              var image = document.getElementById("image");
+              //if(message.payloadString == "on" && image.classList.contains("off")) {
+			  if(message.payloadString == "on") {
+            	image.classList.remove("off");
+            	image.classList.add("on");
+              }
+              //else if (message.payloadString == "off" && image.classList.contains("on")){
+			  else if (message.payloadString == "off"){
+            	image.classList.remove("on");
+            	image.classList.add("off");
+              }
+            }
+            
+        </script>
+    </head>
+    <body>
+		<div style="text-align: center;"> 
+		<input type="text" id="txtPass" />
+		</div>
+        <a href="#" onclick="send()">
+            <div id="image" class="bg wait"></div>
+        </a>
+    </body>
+</html>
