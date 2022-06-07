@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<meta name="viewport" content="width=device-width">
+        <style>
+            body, html {
+            height: 100%;
+            margin: 0;
+            }
+            .bg{
+            height: 100%; 
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            }
+            .off {
+            background-image: url("off.svg");
+            }
+            .on {
+            background-image: url("on.svg");
+            }
+			.wait {
+				background-image: url("wait.gif");
+				height: 64px; 
+				width: 64px;
+				position: absolute;
+				top:0;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				
+				margin: auto;
+            }
+			
+        </style>
+        <script src="paho-mqtt.js"></script>
+        <script>
+            var client = new Paho.MQTT.Client("mqtt.flespi.io", Number(443), "alpayk_browser_" + Math.random().toString(36).substr(2, 9));
+            
+            client.onConnectionLost = onConnectionLost;
+            client.onMessageArrived = onMessageArrived;
+            
+            client.connect({onSuccess:onConnect, useSSL:true, userName:"FlespiToken iTxx0KnK6DtbaPmXGjKlleTQWHBtZ1v7JSszsD7m4qm33yQAFoLQqsucZVwOLRJk", password:""});
+            
+            function onConnect() {
+				 console.log("onConnect");
+				 client.subscribe("su_biber_alpayk_github");
+            }
+            
+            function onConnectionLost(responseObject) {
+              if (responseObject.errorCode !== 0) {
+            	console.log("onConnectionLost:" + responseObject.errorMessage);
+              }
+            }
+            
+            function onMessageArrived(message) {
+              console.log("onMessageArrived:" + message.payloadString);
+			  try {
+				  var msgObj = JSON.parse(message.payloadString);
+				  if(message.topic === "su_biber_alpayk_github") {
+					document.getElementById("txtBiberIstekZamani").innerHTML = msgObj.istek;
+					document.getElementById("txtBiberCevapZamani").innerHTML = msgObj.cevap;
+					document.getElementById("txtBiberSn").value = msgObj.sure;
+				  }
+			  } catch(err) {
+				console.log("Error: " + err)
+			  }
+            }
+            function sula(urun) {
+				if(urun === "biber") {
+					if(document.getElementById("txtBiberSn").value.length > 0 && !isNaN(document.getElementById("txtBiberSn").value)) {
+						var msgObj = {};
+						msgObj.istek = new Date().toLocaleString("tr-TR", {year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit"});
+						msgObj.cevap = "";
+						msgObj.sure = document.getElementById("txtBiberSn").value;
+						msgObj.urun = "biber";
+						
+						var message = new Paho.MQTT.Message(JSON.stringify(msgObj));
+						message.destinationName = "su_biber_alpayk_github";
+						message.retained = true;
+						
+						client.publish(message);
+					}
+				}
+			}
+			
+			function temizle(urun) {
+				if(urun === "biber") {
+					var message = new Paho.MQTT.Message("");
+					message.destinationName = "su_biber_alpayk_github";
+					message.retained = true;
+					
+					client.publish(message);
+					
+					document.getElementById("txtBiberIstekZamani").innerHTML = "";
+					document.getElementById("txtBiberCevapZamani").innerHTML = "";
+					document.getElementById("txtBiberSn").value = "";
+				}
+			}
+        </script>
+    </head>
+    <body>
+		<table>
+			<tr>
+				<th>Sulanacak Urun</th>
+				<th>Istek Zamani</th>
+				<th>Cevap Zamani</th>
+				<th>Sulama Suresi(sn)</th>
+				<th></th>
+				<th></th>
+			</tr>
+			<tr>
+				<th>Biber</th>
+				<th><label id="txtBiberIstekZamani" /></th>
+				<th><label id="txtBiberCevapZamani" /></th>
+				<th><input id="txtBiberSn" type="text" /></th>
+				<th><input id="btnBiberSula" type="submit" value="Sula" onclick="sula('biber');return false;"/></th>
+				<th><input id="btnBiberClear" type="submit" value="Temizle" onclick="temizle('biber');return false;"/></th>
+			</tr>
+		</table>
+    </body>
+</html>
