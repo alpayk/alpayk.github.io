@@ -35,13 +35,8 @@
         </style>
         <script src="paho-mqtt.js"></script>
         <script>
-            var client = new Paho.MQTT.Client("mqtt.flespi.io", Number(443), "alpayk_browser_" + Math.random().toString(36).substr(2, 9));
-            
-            client.onConnectionLost = onConnectionLost;
-            client.onMessageArrived = onMessageArrived;
-            
-            client.connect({onSuccess:onConnect, useSSL:true, userName:"FlespiToken iTxx0KnK6DtbaPmXGjKlleTQWHBtZ1v7JSszsD7m4qm33yQAFoLQqsucZVwOLRJk", password:""});
-            
+			var client;
+			
             function onConnect() {
 				 console.log("onConnect");
 				 client.subscribe("su_biber_alpayk_github");
@@ -66,6 +61,15 @@
 				console.log("Error: " + err)
 			  }
             }
+			
+			function init() {
+				client = new Paho.MQTT.Client("mqtt.flespi.io", Number(443), "alpayk_browser_" + Math.random().toString(36).substr(2, 9));
+				client.onConnectionLost = onConnectionLost;
+				client.onMessageArrived = onMessageArrived;
+				
+				client.connect({onSuccess:onConnect, useSSL:true, userName:"FlespiToken iTxx0KnK6DtbaPmXGjKlleTQWHBtZ1v7JSszsD7m4qm33yQAFoLQqsucZVwOLRJk", password:""});
+			}
+			
             function sula(urun) {
 				if(urun === "biber") {
 					if(document.getElementById("txtBiberSn").value.length > 0 && !isNaN(document.getElementById("txtBiberSn").value)) {
@@ -99,7 +103,7 @@
 			}
         </script>
     </head>
-    <body>
+    <body onload="init()">
 		<table>
 			<tr>
 				<th>Sulanacak Urun</th>
