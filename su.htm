@@ -81,7 +81,7 @@ body, html {
 
 		message = new Paho.MQTT.Message(_message);
 		message.destinationName = _topic;
-		message.retained = true;
+		message.retained = false;
 
 		client.send(message);
 	}
