@@ -68,12 +68,12 @@ body, html {
 		{
 			var passVal = null;
 			passVal = parseInt(pass);
-			if(isNaN(passVal) || passVal < 1 || passVal > 60)
-				pass = "20";
+			if(isNaN(passVal) || passVal < 1 || passVal > 3600)
+				pass = "600";
 		} 
 		catch (err) 
 		{
-			pass = "20";
+			pass = "600";
 		}
 
 		var _topic = "su_from_web";
