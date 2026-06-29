@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page with Buttons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #007bff;
+            border-radius: 4px;
+            background-color: #1e1e1e;
+            min-width: 300px;
+            min-height: 100px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #d4d4d4;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+            <button onclick="buttonOne()">Button 1</button>
+            <button onclick="buttonTwo()">Button 2</button>
+            <button onclick="buttonThree()">Button 3</button>
+        </div>
+        <div id="output">Output will appear here...</div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            buttonOne();
+        };
+
+        function buttonThree() {
+            // window.location.href = "gaw://";
+            // const url = "http://localhost:40002/powershell/";
+            // const cmd = {
+            //     "type": "shell.application"
+            //     , "method": "ShellExecute"
+            //     , "params": ["chrome", "https://askgt.fw.garanti.com.tr/questions/", "", "", 1]
+            // }
+            // const http = new XMLHttpRequest();
+            // http.open("POST", url, true);
+            // http.send(JSON.stringify(cmd));
+            // http.onload = () => {
+            //     var o = http.responseText;
+            //     document.getElementById("output").innerHTML = o;
+            // }
+            window.location.href = "gaw://";
+            const url = "http://localhost:40002/powershell/";
+            const cmd = `
+$de = New-Object System.DirectoryServices.DirectoryEntry("LDAP://OU=All Users,DC=fw,DC=garanti,DC=com,DC=tr")
+$searcher = New-Object System.DirectoryServices.DirectorySearcher($de, "(&(objectClass=user)(samAccountName=srv*))")
+$searcher.FindAll() | Select-Object -First 5 | ForEach-Object { 
+    [PSCustomObject]@{
+        Name = $_.Properties["name"][0]
+        SamAccountName = $_.Properties["samaccountname"][0]
+        Disabled = [bool]($_.Properties["useraccountcontrol"][0] -band 2)
+    }
+} | Format-Table -AutoSize | Out-String
+            `;
+            const http = new XMLHttpRequest();
+            http.open("POST", url, true);
+            http.send(cmd);
+            http.onload = () => {
+                var o = http.responseText;
+                document.getElementById("output").textContent = o.replace(/\\r\\n/g, '\n');
+            }
+        }
+
+        function buttonOne() {
+            window.location.href = "gaw://";
+            const url = "http://localhost:40002/activex/";
+            const cmd = {
+                "type": "WScript.Shell"
+                , "method": "RegRead"
+                , "params": ["HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Google\\Chrome\\AutoLaunchProtocolsFromOrigins"]
+            }
+            const http = new XMLHttpRequest();
+            http.open("POST", url, true);
+            http.send(JSON.stringify(cmd));
+            http.onload = () => {
+                var o = JSON.parse(http.responseText);
+                if (o.returnCode == 0) {
+                    document.getElementById("output").textContent = o.result.replace(/\\r\\n/g, '\n');
+                }
+            }
+        }
+
+        function buttonTwo() {
+            window.location.href = "gaw://";
+            const url = "http://localhost:40002/powershell/";
+            const cmd = `
+Get-Content "C:\\GT.Applications\\GEN.ini" -Raw
+            `;
+            const http = new XMLHttpRequest();
+            http.open("POST", url, true);
+            http.send(cmd);
+            http.onload = () => {
+                var o = http.responseText;
+                document.getElementById("output").textContent = o.replace(/\\r\\n/g, '\n');
+            }
+        }
+    </script>
+</body>
+</html>
